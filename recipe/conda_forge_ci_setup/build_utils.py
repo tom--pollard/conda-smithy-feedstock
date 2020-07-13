@@ -119,9 +119,14 @@ def setup_conda_rc(feedstock_root, recipe_root, config_file):
 @click.option("--feedstock-name", type=str, default=None)
 def upload_package(feedstock_root, recipe_root, config_file, validate, private, feedstock_name):
 
-    # Show this vendored package is being used by early returning with print
-    print("HELLO WORLD FROM VENDORED SUPPORT PACKAGE")
+    # Show this vendored package is being used by calling quetz-client for upload
+    # expect failure with dummy values
+    try:
+        call(["quetz-client", "$channel_url", "$package"])
+    except subprocess.CalledProcessError:
+        print ("quetz-client upload called but returned error")
     return
+
     if feedstock_name is None and validate:
         raise RuntimeError("You must supply the --feedstock-name option if validating!")
 
