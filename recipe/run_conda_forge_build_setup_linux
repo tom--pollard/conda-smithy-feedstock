@@ -74,10 +74,9 @@ conda info
 conda config --show-sources
 conda list --show-channel-urls
 
-## Manually build & install local quetz-client
-git clone --depth=1 https://github.com/TheSnakePit/quetz
-# Install required deps as local builds don't resolve tree
-conda install --yes --quiet conda-verify
-conda build quetz/quetz_client
-conda install --yes --quiet --use-local quetz-client
-quetz-client --version
+# Install quetz-client here, as the generated `build_steps.sh`
+# pip installs the vendored support package, as such adding quetz-client
+# as a run depends in the meta recipe isn't suitable. `conda-smithy`
+# could be modified to allow the vendored support package to be
+# remotely installed as a standard conda package, or other means.
+conda install --yes --quiet -c conda-forge quetz-client
