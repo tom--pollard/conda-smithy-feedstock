@@ -80,3 +80,8 @@ conda list --show-channel-urls
 # could be modified to allow the vendored support package to be
 # remotely installed as a standard conda package, or other means.
 conda install --yes --quiet -c conda-forge quetz-client
+
+# Export dummy API key & localhost url. These should be real
+# config options/tokens/secrets.
+export QUETZ_API_KEY=E_KaBFstCKI9hTdPM7DQq56GglRHf2HW7tQtq6si370
+export QUETZ_URL="http://localhost:8000/api/channels/"

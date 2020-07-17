@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import random
 
 try:
     from ruamel_yaml import safe_load, safe_dump
@@ -9,6 +10,7 @@ except ImportError:
 
 import click
 
+import conda_build.config
 
 from conda_forge_ci_setup.upload_or_check_non_existence import retry_upload_or_check
 
@@ -120,11 +122,35 @@ def setup_conda_rc(feedstock_root, recipe_root, config_file):
 def upload_package(feedstock_root, recipe_root, config_file, validate, private, feedstock_name):
 
     # Show this vendored package is being used by calling quetz-client for upload
-    # expect failure with dummy values
-    try:
-        call(["quetz-client", "$channel_url", "$package"])
-    except subprocess.CalledProcessError:
-        print ("quetz-client upload called but returned error")
+    # Using random channel name for now. Should load from channel & url from conda config
+    # eventually.
+    quetz_url = os.environ["QUETZ_URL"] + "channel" + str(random.randint(1,29))
+
+    print("QUETZ_API_KEY: " + os.environ["QUETZ_API_KEY"])
+    print("Channel url:" + quetz_url)
+
+    package_paths = (
+        [
+            os.path.join(conda_build.config.croot, 'noarch', p)
+            for p in os.listdir(os.path.join(conda_build.config.croot, 'noarch')) if p.endswith('.tar.bz2')
+        ]
+        + [
+            os.path.join(conda_build.config.croot, conda_build.config.subdir, p)
+            for p in os.listdir(os.path.join(conda_build.config.croot, conda_build.config.subdir)) if p.endswith('.tar.bz2')
+        ])
+
+    for package in package_paths:
+        try:
+            print("Uploading {} to url {}".format(package, quetz_url))
+            output = subprocess.check_output(['quetz-client', quetz_url, package])
+            output_str = output.decode('utf-8').rstrip()
+            if output_str == "201":
+                print("Upload successful")
+            else:
+                print("Upload failed, http returncode {}".format(output_str))
+        except subprocess.CalledProcessError:
+            print ("quetz-client upload called but error occurred")
+
     return
 
     if feedstock_name is None and validate:
