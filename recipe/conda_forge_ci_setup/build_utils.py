@@ -144,10 +144,10 @@ def upload_package(feedstock_root, recipe_root, config_file, validate, private, 
             print("Uploading {} to url {}".format(package, quetz_url))
             output = subprocess.check_output(['quetz-client', quetz_url, package])
             output_str = output.decode('utf-8').rstrip()
-            if output_str == "201":
+            if not output_str:
                 print("Upload successful")
             else:
-                print("Upload failed, http returncode {}".format(output_str))
+                print("Upload failed, quetz-client returned {}".format(output_str))
         except subprocess.CalledProcessError:
             print ("quetz-client upload called but error occurred")
 
